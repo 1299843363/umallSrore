@@ -2,7 +2,7 @@
   <div>
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
       <el-form :model="user">
-        <el-form-item label="所属角色" label-width="120px">
+        <el-form-item label="所属角色" label-width="120px" prop="roleid">
           <el-select placeholder="请选择角色" v-model="user.roleid">
             <!-- //循环遍历reqRoleList里面的值 -->
             <el-option
@@ -13,7 +13,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户名" label-width="120px">
+        <el-form-item label="用户名" label-width="120px" prop="username">
           <el-input v-model="user.username" autocomplete="off"></el-input>
         </el-form-item>
 
@@ -37,6 +37,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import {errorAlert} from '../../../utils/alert'
 // 一进来，先获取菜单列表数据
 import {
   reqRoleList,
@@ -58,7 +59,22 @@ export default {
         status: 1
       },
       // 角色列表
-      roleList: []
+      roleList: [],
+      // 验证
+      check() {
+        return new Promise((resolve, reject) => {
+          //验证
+          if (this.user.roleid === "") {
+            errorAlert("所属角色不能为空");
+            return;
+          }
+             if (this.user.username === "") {
+            errorAlert("用户名不能为空");
+            return;
+          }
+          resolve();
+        });
+      }
     };
   },
   computed: {
@@ -80,18 +96,20 @@ export default {
     },
     //点击添加将树形控件的数据取出，变成字符串数组，赋值给user.menus
     add() {
-      //发送ajax
-      reqUserAdd(this.user).then(res => {
-        if (res.data.code === 200) {
-          //弹窗成功
-          successAlert("添加成功");
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //通知父组件刷新
-          this.$emit("init");
-        }
+      this.check().then(() => {
+        //发送ajax
+        reqUserAdd(this.user).then(res => {
+          if (res.data.code === 200) {
+            //弹窗成功
+            successAlert("添加成功");
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //通知父组件刷新
+            this.$emit("init");
+          }
+        });
       });
     },
     getOne(uid) {

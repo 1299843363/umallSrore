@@ -2,7 +2,7 @@
   <div>
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
       <el-form :model="user">
-        <el-form-item label="上级分类" label-width="120px">
+        <el-form-item label="上级分类" label-width="120px" prop="pid">
           <el-select v-model="user.pid" placeholder="请选择角色">
             <el-option :value="0" label="顶级分类"></el-option>
             <el-option
@@ -14,17 +14,15 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="分类名称" label-width="120px">
+        <el-form-item label="分类名称" label-width="120px" prop="catename">
           <el-input v-model="user.catename" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="图片" label-width="120px" v-if="user.pid!==0" >
-
+        <el-form-item label="图片" label-width="120px" v-if="user.pid!==0">
           <div class="myupload">
             <h3>+</h3>
             <img class="img" v-if="imgUrl" :src="imgUrl" alt />
             <input v-if="info.isshow" type="file" class="ipt" @change="changeFile" />
           </div>
-
         </el-form-item>
         <el-form-item label="状态" label-width="120px">
           <el-switch v-model="user.status" :active-value="1" :inactive-value="2"></el-switch>
@@ -59,7 +57,21 @@ export default {
         status: 1
       },
       //   初始化图片路径
-      imgUrl: ""
+      imgUrl: "",
+      check() {
+        return new Promise((resolve, reject) => {
+          //验证
+          if (this.user.pid === "") {
+            errorAlert("上级分类不能为空");
+            return;
+          }
+            if (this.user.catename === "") {
+            errorAlert("分类名称不能为空");
+            return;
+          }
+          resolve();
+        });
+      }
     };
   },
   computed: {
@@ -90,7 +102,7 @@ export default {
     },
     cancel() {
       this.info.isshow = false;
-      this.empty()
+      this.empty();
     },
     //.清空数据
     empty() {
@@ -103,19 +115,21 @@ export default {
       this.imgUrl = "";
     },
     add() {
-      //发送ajax
-      reqCateAdd(this.user).then(res => {
-        console.log(this.user);
-        if (res.data.code === 200) {
-          //弹窗成功
-          successAlert("添加成功");
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //  刷新list
-          this.reqList();
-        }
+      this.check().then(() => {
+        //发送ajax
+        reqCateAdd(this.user).then(res => {
+          console.log(this.user);
+          if (res.data.code === 200) {
+            //弹窗成功
+            successAlert("添加成功");
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //  刷新list
+            this.reqList();
+          }
+        });
       });
     },
     getOne(id) {

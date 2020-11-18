@@ -2,7 +2,7 @@
   <div class="box">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
       <el-form :model="user">
-        <el-form-item label="标题" label-width="120px">
+        <el-form-item label="标题" label-width="120px" prop="title">
           <el-input v-model="user.title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="图片" label-width="120px" v-if="user.pid!==0">
@@ -60,7 +60,17 @@ export default {
         status: 1
       },
       //   初始化图片路径
-      imgUrl: ""
+      imgUrl: "",
+      check() {
+        return new Promise((resolve, reject) => {
+          //验证
+          if (this.user.title === "") {
+            errorAlert("标题不能为空");
+            return;
+          }
+          resolve();
+        });
+      }
     };
   },
   computed: {
@@ -124,19 +134,21 @@ export default {
       this.imgUrl = "";
     },
     add() {
-      //发送ajax
-      reqbannerAdd(this.user).then(res => {
-        console.log(this.user);
-        if (res.data.code === 200) {
-          //弹窗成功
-          successAlert("添加成功");
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //  刷新list
-          this.reqList();
-        }
+      this.check().then(() => {
+        //发送ajax
+        reqbannerAdd(this.user).then(res => {
+          console.log(this.user);
+          if (res.data.code === 200) {
+            //弹窗成功
+            successAlert("添加成功");
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //  刷新list
+            this.reqList();
+          }
+        });
       });
     },
     getOne(id) {

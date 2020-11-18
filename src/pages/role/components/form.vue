@@ -2,7 +2,7 @@
   <div>
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
       <el-form :model="user">
-        <el-form-item label="角色名称" label-width="120px">
+        <el-form-item label="角色名称" label-width="120px" prop="rolename">
           <el-input v-model="user.rolename" autocomplete="off"></el-input>
         </el-form-item>
 
@@ -34,6 +34,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+
 // 一进来，先获取菜单列表数据
 import {
   reqMenuList,
@@ -41,7 +42,7 @@ import {
   reqRoleDetail,
   reqRoleUpdata
 } from "../../../utils/http";
-import { successAlert } from "../../../utils/alert";
+import { successAlert, errorAlert } from "../../../utils/alert";
 
 export default {
   props: ["info"],
@@ -54,7 +55,18 @@ export default {
         status: 1
       },
       //   初始化树形控件
-      menuList: []
+      menuList: [],
+      // 验证
+      check() {
+        return new Promise((resolve, reject) => {
+          //验证
+          if (this.user.rolename === "") {
+            errorAlert("角色名称不能为空");
+            return;
+          }
+          resolve();
+        });
+      }
     };
   },
   computed: {
@@ -77,19 +89,21 @@ export default {
     },
     //点击添加将树形控件的数据取出，变成字符串数组，赋值给user.menus
     add() {
-      this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      //发送ajax
-      reqRoleAdd(this.user).then(res => {
-        if (res.data.code === 200) {
-          //弹窗成功
-          successAlert("添加成功");
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //通知父组件刷新
-          this.$emit("init");
-        }
+      this.check().then(() => {
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        //发送ajax
+        reqRoleAdd(this.user).then(res => {
+          if (res.data.code === 200) {
+            //弹窗成功
+            successAlert("添加成功");
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //通知父组件刷新
+            this.$emit("init");
+          }
+        });
       });
     },
     getOne(id) {

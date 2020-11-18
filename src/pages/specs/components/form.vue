@@ -2,7 +2,7 @@
   <div>
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
       <el-form :model="user">
-        <el-form-item label="规格名称" label-width="120px">
+        <el-form-item label="规格名称" label-width="120px" prop="specsname">
           <el-input v-model="user.specsname" autocomplete="off"></el-input>
         </el-form-item>
 
@@ -53,7 +53,21 @@ export default {
         {
           value: ""
         }
-      ]
+      ],
+      check() {
+        return new Promise((resolve, reject) => {
+          //验证
+          if (this.user.specsname === "") {
+            errorAlert("规格名称不能为空");
+            return;
+          }
+          if (this.user.catename === "") {
+            errorAlert("分类名称不能为空");
+            return;
+          }
+          resolve();
+        });
+      }
     };
   },
   computed: {
@@ -94,23 +108,22 @@ export default {
       this.attrArr.splice(index, 1);
     },
     add() {
-      // this.user.attrs = this.attrArr.map(item => {
-      //   return item.value;
-      // });
-      this.user.attrs = JSON.stringify(this.attrArr.map(item => item.value));
-      // 发送ajax;
-      reqSpecsAdd(this.user).then(res => {
-        if (res.data.code === 200) {
-          //弹窗成功
-          successAlert("添加成功");
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //  刷新list
-          this.reqList();
-          this.reqCount()
-        }
+      this.check().then(() => {
+        this.user.attrs = JSON.stringify(this.attrArr.map(item => item.value));
+        // 发送ajax;
+        reqSpecsAdd(this.user).then(res => {
+          if (res.data.code === 200) {
+            //弹窗成功
+            successAlert("添加成功");
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //  刷新list
+            this.reqList();
+            this.reqCount();
+          }
+        });
       });
     },
     getOne(id) {
@@ -135,7 +148,7 @@ export default {
           this.empty();
           //  刷新list
           this.reqList();
-          this.reqCount()
+          this.reqCount();
         }
       });
     },

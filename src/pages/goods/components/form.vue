@@ -1,8 +1,7 @@
 <template>
   <div class="box">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed" @opened="opened">
-      <el-form :model="user" :rules="rules">
-        {{user}}}
+      <el-form :model="user">
         <el-form-item label="一级分类" label-width="120px" prop="first_cateid">
           <el-select v-model="user.first_cateid" placeholder="请选择一级分类" @change="changeFirst">
             <el-option
@@ -13,7 +12,6 @@
             ></el-option>
           </el-select>
         </el-form-item>
-
         <el-form-item label="二级分类" label-width="120px" prop="second_cateid">
           <el-select v-model="user.second_cateid" placeholder="请选择二级分类">
             <el-option
@@ -24,7 +22,6 @@
             ></el-option>
           </el-select>
         </el-form-item>
-
         <el-form-item label="商品名称" label-width="120px" prop="goodsname">
           <el-input v-model="user.goodsname" autocomplete="off"></el-input>
         </el-form-item>
@@ -309,7 +306,7 @@ export default {
       });
     },
     closed() {
-      if (this.info.title === "编辑角色") {
+      if (this.info.title === "编辑规格") {
         this.empty();
       }
     },

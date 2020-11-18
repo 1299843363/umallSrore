@@ -28,22 +28,20 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { reqbannerDelete } from "../../../utils/http";
+import { reqseckDelete } from "../../../utils/http";
 import { successAlert } from "../../../utils/alert";
 export default {
   computed: {
     ...mapGetters({
-      list: "banner/list",
       list: "seckill/list"
     })
   },
   methods: {
     ...mapActions({
-      "reqList": "banner/reqList",
       "reqList": "seckill/reqList"
     }),
     del(id) {
-      reqbannerDelete(id).then(res => {
+      reqseckDelete(id).then(res => {
         if (res.data.code === 200) {
           successAlert(res.data.msg);
           this.reqList();
